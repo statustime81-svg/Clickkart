@@ -1,0 +1,9 @@
+'use client';
+import {useEffect,useState} from 'react';
+import Link from 'next/link';
+import Layout from '../site/Layout';
+import {ImmersiveGallery,inspiration} from '../site/Immersive';
+import {PageHero,CTA} from '../site/Sections';
+import {supabase} from '@/lib/site/supabase';
+import {Dialog,DialogContent,DialogTitle,DialogDescription,DialogTrigger} from '@/components/ui/dialog';
+export default function GalleryPage(){const [items,setItems]=useState([]);const [loading,setLoading]=useState(Boolean(supabase));const [error,setError]=useState(false);useEffect(()=>{if(supabase)supabase.from('gallery').select('*').order('created_at',{ascending:false}).then(({data,error})=>{setItems(data||[]);setError(Boolean(error));setLoading(false)})},[]);return <Layout><PageHero label="The gallery" title={<>A closer look<br/>at our world.</>} description="Creative work, ideas and moments from Clickkart Digital."/>{!loading&&!error&&<><ImmersiveGallery items={items.length?items:inspiration}/>{!items.length&&<p className="wrap" style={{marginTop:30}}>Creative inspiration · Stock photography preview. Your uploaded gallery will replace these images.</p>}</>}<section className="section wrap">{loading?<p role="status">Loading gallery…</p>:error?<div className="notice">The gallery is temporarily unavailable. Please try again later.</div>:<div className="gallery-grid">{(items.length?items:inspiration).map(item=><Dialog key={item.id}><DialogTrigger asChild><button style={{border:0,background:'transparent',textAlign:'left'}}><img src={item.url} alt={item.title} loading="lazy"/><p style={{marginTop:12}}>{item.title}</p></button></DialogTrigger><DialogContent className="!max-w-4xl"><DialogTitle>{item.title}</DialogTitle><DialogDescription>{item.caption||'Clickkart Digital gallery'}</DialogDescription><img src={item.url} alt={item.title} style={{maxHeight:'70vh',objectFit:'contain',margin:'auto'}}/></DialogContent></Dialog>)}</div>}</section><CTA/></Layout>}

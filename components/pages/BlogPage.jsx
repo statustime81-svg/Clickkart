@@ -1,0 +1,6 @@
+'use client';
+import {useState} from 'react';
+import Layout from '../site/Layout';
+import {PageHero,BlogCards,CTA} from '../site/Sections';
+import {usePosts} from '@/lib/site/blog';
+export default function BlogPage(){const {posts,loading,error}=usePosts();const [query,setQuery]=useState('');const filtered=posts.filter(p=>(p.title+p.category).toLowerCase().includes(query.toLowerCase()));return <Layout><PageHero label="The Clickkart journal" title={<>Ideas worth sharing.<br/>Insights worth a click.</>} description="Perspectives on marketing, design and technology for businesses building their digital presence."/><section className="section wrap"><label className="field" style={{maxWidth:450,marginBottom:35}}>Search articles<input type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Try marketing or app development"/></label>{loading?<p role="status">Loading articles…</p>:error?<p role="alert">{error}</p>:filtered.length?<BlogCards items={filtered}/>:<div className="empty-state"><h3>No matching articles</h3><p>Try a different search.</p><button className="btn" onClick={()=>setQuery('')} style={{marginTop:20}}>Clear search</button></div>}</section><CTA/></Layout>}

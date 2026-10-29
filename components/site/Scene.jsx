@@ -1,0 +1,14 @@
+'use client';
+import {Suspense,useRef,useEffect,useState,Component} from 'react';
+import {Canvas,useFrame} from '@react-three/fiber';
+import {Environment,Lightformer} from '@react-three/drei';
+import * as THREE from 'three';
+class Boundary extends Component{constructor(p){super(p);this.state={failed:false}}static getDerivedStateFromError(){return {failed:true}}render(){return this.state.failed?<div className="scene-fallback"><img src="/favicon.svg" alt="Clickkart Digital"/></div>:this.props.children}}
+function Sculpture({lite,reduced}){const group=useRef();useFrame((s,delta)=>{if(!group.current||reduced)return;const scroll=window.scrollY/Math.max(window.innerHeight,1);group.current.rotation.y=THREE.MathUtils.lerp(group.current.rotation.y,scroll*.65+s.pointer.x*.15,Math.min(delta*3,1));group.current.rotation.z=-.32+Math.sin(s.clock.elapsedTime*.3)*.06;group.current.position.y=Math.sin(s.clock.elapsedTime*.6)*.07});return <group ref={group} rotation={[.3,0,-.32]} scale={lite?.94:1}>
+<mesh rotation={[.1,.55,.2]}><torusGeometry args={[1.55,.43,lite?16:40,lite?52:120]}/><meshStandardMaterial color="#d90e7e" metalness={.8} roughness={.18}/></mesh>
+<mesh rotation={[1.12,.2,-.7]} scale={.83}><torusGeometry args={[1.6,.21,lite?12:32,lite?48:100]}/><meshStandardMaterial color="#bba4bd" metalness={1} roughness={.12}/></mesh>
+<mesh position={[.1,0,.2]}><icosahedronGeometry args={[.58,1]}/><meshStandardMaterial color="#f841a6" metalness={.85} roughness={.2}/></mesh>
+<mesh position={[-1.8,1.3,.2]}><sphereGeometry args={[.13,16,16]}/><meshStandardMaterial color="#ff75bd" metalness={.75} roughness={.15}/></mesh>
+<mesh position={[1.7,-1.25,.2]}><sphereGeometry args={[.22,20,20]}/><meshStandardMaterial color="#c9bbc9" metalness={1} roughness={.13}/></mesh>
+</group>}
+export default function Scene(){const [ready,setReady]=useState(false);const [lite,setLite]=useState(true);const [reduced,setReduced]=useState(false);useEffect(()=>{setLite(innerWidth<801);setReduced(matchMedia('(prefers-reduced-motion: reduce)').matches);setReady(true)},[]);if(!ready)return null;return <Boundary><Canvas dpr={lite?1:[1,1.6]} camera={{position:[0,0,6.7],fov:43}} gl={{antialias:!lite,alpha:true,powerPreference:'low-power'}} frameloop={reduced?'demand':'always'} aria-label="Interactive magenta and chrome 3D sculpture"><ambientLight intensity={.8}/><directionalLight position={[3,5,5]} intensity={4}/><pointLight position={[-3,-2,3]} intensity={15} color="#ff178e"/><Suspense fallback={null}><Environment resolution={lite?64:128}><Lightformer intensity={5} position={[0,4,3]} scale={[10,3,1]}/><Lightformer intensity={4} position={[-4,0,2]} rotation={[0,Math.PI/2,0]} scale={[8,2,1]}/><Lightformer intensity={2} position={[4,-2,1]} scale={[4,4,1]}/></Environment><Sculpture lite={lite} reduced={reduced}/></Suspense></Canvas></Boundary>}
